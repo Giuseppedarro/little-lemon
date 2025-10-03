@@ -16,18 +16,34 @@ object Routes {
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(startDestination: String) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = Routes.Onboarding) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable(Routes.Onboarding) {
-            OnboardingScreen()
+            OnboardingScreen(
+                onNavigateToMenu = {
+                    navController.navigate(Routes.Menu) {
+                        popUpTo(Routes.Onboarding) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
         composable(Routes.Menu) {
-            MenuScreen()
+            MenuScreen(
+                onNavigateToProfile = { navController.navigate(Routes.Profile) }
+            )
         }
         composable(Routes.Profile) {
-            ProfileScreen()
+            ProfileScreen(
+                onNavigateToOnboarding = {
+                    navController.navigate(Routes.Onboarding) {
+                        popUpTo(Routes.Menu) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
     }
 }

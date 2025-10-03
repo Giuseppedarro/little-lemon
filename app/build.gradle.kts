@@ -52,7 +52,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
 
-    // Koin Dependencies
+    // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 

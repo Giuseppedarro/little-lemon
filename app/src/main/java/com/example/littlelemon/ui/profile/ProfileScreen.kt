@@ -1,123 +1,105 @@
 package com.example.littlelemon.ui.profile
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.littlelemon.R
 import com.example.littlelemon.ui.components.AppHeader
 import com.example.littlelemon.ui.components.PrimaryButton
 import com.example.littlelemon.ui.components.TextInput
 import com.example.littlelemon.ui.theme.LittleLemonTheme
+import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.koinViewModel
+
 
 @Composable
-fun ProfileScreen() {
-    var firstName by remember { mutableStateOf("Tom") }
-    var lastName by remember { mutableStateOf("Cruise") }
-    var email by remember { mutableStateOf("tomcruise@email.com") }
-    var phone by remember { mutableStateOf("1234567891") }
+fun ProfileScreen(
+    onNavigateToOnboarding: () -> Unit,
+    viewModel: ProfileViewModel = koinViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
 
-    var orderStatus by remember { mutableStateOf(true) }
-    var passwordChanges by remember { mutableStateOf(true) }
-    var specialOffers by remember { mutableStateOf(true) }
-    var newsletter by remember { mutableStateOf(true) }
+    LaunchedEffect(key1 = true) {
+        viewModel.navigationEvent.collectLatest { event ->
+            when (event) {
+                is ProfileNavigationEvent.NavigateToOnboarding -> {
+                    onNavigateToOnboarding()
+                }
+            }
+        }
+    }
 
+    ProfileContent(
+        uiState = uiState,
+        onLogoutClick = { viewModel.logout() }
+    )
+}
+
+
+@Composable
+fun ProfileContent(
+    uiState: ProfileUiState,
+    onLogoutClick: () -> Unit
+) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
             AppHeader()
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(40.dp))
 
-            Text("Personal information", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Personal information",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Start)
+            )
+            Spacer(modifier = Modifier.height(32.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Spacer(modifier = Modifier.weight(1f))
-                Button(onClick = { }) {
-                    Text("Change")
-                }
-                Spacer(modifier = Modifier.padding(8.dp))
-                Button(
-                    onClick = { },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Gray)
-                ) {
-                    Text("Remove")
-                }
-            }
+            TextInput(label = "First Name", value = uiState.firstName, onValueChange = {}, enabled = false)
             Spacer(modifier = Modifier.height(16.dp))
-
-            TextInput(label = "First Name", value = firstName, onValueChange = { firstName = it }, enabled = false)
+            TextInput(label = "Last Name", value = uiState.lastName, onValueChange = {}, enabled = false)
             Spacer(modifier = Modifier.height(16.dp))
-            TextInput(label = "Last Name", value = lastName, onValueChange = { lastName = it }, enabled = false)
-            Spacer(modifier = Modifier.height(16.dp))
-            TextInput(label = "Email", value = email, onValueChange = { email = it }, enabled = false)
-            Spacer(modifier = Modifier.height(16.dp))
-            TextInput(label = "Phone number (10 digit)", value = phone, onValueChange = { phone = it })
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text("Email notifications", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(16.dp))
-
-            CheckboxWithLabel(label = "Order statuses", checked = orderStatus, onCheckedChange = { orderStatus = it })
-            CheckboxWithLabel(label = "Password changes", checked = passwordChanges, onCheckedChange = { passwordChanges = it })
-            CheckboxWithLabel(label = "Special offers", checked = specialOffers, onCheckedChange = { specialOffers = it })
-            CheckboxWithLabel(label = "Newsletter", checked = newsletter, onCheckedChange = { newsletter = it })
+            TextInput(label = "Email", value = uiState.email, onValueChange = {}, enabled = false)
 
             Spacer(modifier = Modifier.weight(1f))
 
-            PrimaryButton(text = "Log out") {
-
-            }
+            PrimaryButton(text = "Log out", modifier = Modifier.fillMaxWidth(), onClick = onLogoutClick)
+            Spacer(modifier = Modifier.height(16.dp))
         }
-    }
-}
-
-@Composable
-fun CheckboxWithLabel(label: String, checked: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(checked = checked, onCheckedChange = onCheckedChange)
-        Text(text = label, modifier = Modifier.padding(start = 8.dp))
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun ProfileScreenPreview() {
+fun ProfileContentPreview() {
     LittleLemonTheme {
-        ProfileScreen()
+        ProfileContent(
+            uiState = ProfileUiState(
+                firstName = "Tilly",
+                lastName = "Doe",
+                email = "tilly.doe@example.com"
+            ),
+            onLogoutClick = {}
+        )
     }
 }

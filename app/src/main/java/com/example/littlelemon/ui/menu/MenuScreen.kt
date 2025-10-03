@@ -1,6 +1,7 @@
 package com.example.littlelemon.ui.menu
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,13 +49,45 @@ import com.example.littlelemon.ui.theme.LittleLemonTheme
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun MenuScreen(viewModel: MenuViewModel = koinViewModel()) {
+fun MenuScreen(
+    onNavigateToProfile: () -> Unit,
+    viewModel: MenuViewModel = koinViewModel()
+) {
     val uiState by viewModel.uiState.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
 
+    val filteredItems = if (searchQuery.isNotBlank()) {
+        uiState.menuItems.filter {
+            it.title.contains(searchQuery, ignoreCase = true)
+        }
+    } else {
+        uiState.menuItems
+    }
+
+    MenuContent(
+        uiState = uiState.copy(menuItems = filteredItems),
+        searchQuery = searchQuery,
+        onSearchQueryChange = { searchQuery = it },
+        onCategoryClick = { /* TODO: viewModel.filter(it) */ },
+        onProfileClick = onNavigateToProfile
+    )
+}
+
+@Composable
+fun MenuContent(
+    uiState: MenuUiState,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    onCategoryClick: (String) -> Unit,
+    onProfileClick: () -> Unit
+) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            HomeHeader()
-            HeroSection()
+            HomeHeader(onProfileClick = onProfileClick)
+            HeroSection(
+                searchQuery = searchQuery,
+                onSearchQueryChange = onSearchQueryChange
+            )
 
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -65,41 +98,46 @@ fun MenuScreen(viewModel: MenuViewModel = koinViewModel()) {
                     Text(text = "Error: ${uiState.error}")
                 }
             } else {
-                MenuBreakdown(menuItems = uiState.menuItems)
+                MenuBreakdown(
+                    menuItems = uiState.menuItems,
+                    onCategoryClick = onCategoryClick
+                )
             }
         }
     }
 }
 
 @Composable
-fun HomeHeader() {
+fun HomeHeader(onProfileClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .height(80.dp),
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Spacer(modifier = Modifier.size(50.dp))
-        Text(text = "[Logo]")
         Box(
             modifier = Modifier
                 .size(50.dp)
+                .padding(end = 16.dp)
                 .clip(CircleShape)
-                .background(LittleLemonGreen),
+                .clickable { onProfileClick() },
             contentAlignment = Alignment.Center
         ) {
-            Text(text = "TC", color = Color.White, fontWeight = FontWeight.Bold)
+            Icon(
+                painter = painterResource(id = R.drawable.ic_profile),
+                contentDescription = "Profile Icon",
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HeroSection() {
-    var searchQuery by remember { mutableStateOf("") }
-
+fun HeroSection(
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -122,7 +160,7 @@ fun HeroSection() {
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
             value = searchQuery,
-            onValueChange = { searchQuery = it },
+            onValueChange = onSearchQueryChange,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(text = "Search") },
             leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search Icon") },
@@ -133,7 +171,7 @@ fun HeroSection() {
 }
 
 @Composable
-fun MenuBreakdown(menuItems: List<MenuItem>) {
+fun MenuBreakdown(menuItems: List<MenuItem>, onCategoryClick: (String) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         Spacer(modifier = Modifier.height(24.dp))
         Text(
@@ -143,9 +181,9 @@ fun MenuBreakdown(menuItems: List<MenuItem>) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            CategoryButton(text = "Starters")
-            CategoryButton(text = "Mains")
-            CategoryButton(text = "Desserts")
+            CategoryButton(text = "Starters") { onCategoryClick("Starters") }
+            CategoryButton(text = "Mains") { onCategoryClick("Mains") }
+            CategoryButton(text = "Desserts") { onCategoryClick("Desserts") }
         }
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn {
@@ -158,9 +196,9 @@ fun MenuBreakdown(menuItems: List<MenuItem>) {
 }
 
 @Composable
-fun CategoryButton(text: String) {
+fun CategoryButton(text: String, onClick: () -> Unit) {
     Button(
-        onClick = { },
+        onClick = onClick,
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = LittleLemonLightGray)
     ) {
@@ -168,18 +206,36 @@ fun CategoryButton(text: String) {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Menu Content Loaded")
 @Composable
-fun MenuScreenPreview() {
+fun MenuContentPreview() {
     LittleLemonTheme {
         val sampleMenuItems = listOf(
-            MenuItem("Greek Salad", "The famous Greek salad of crispy lettuce, peppers, olives and our Chicago style feta cheese, garnished with crunchy garlic and rosemary croutons.", 12.99, R.drawable.ic_launcher_background),
-            MenuItem("Bruschetta", "Our Bruschetta is made from grilled bread that has been smeared with garlic and seasoned with salt and olive oil.", 5.99, R.drawable.ic_launcher_background)
+            MenuItem(1, "Greek Salad", "The famous Greek salad of crispy lettuce, peppers, olives and our Chicago style feta cheese, garnished with crunchy garlic and rosemary croutons.", 12.99, "", "starters"),
+            MenuItem(2, "Bruschetta", "Our Bruschetta is made from grilled bread that has been smeared with garlic and seasoned with salt and olive oil.", 5.99, "", "starters")
         )
-        Column {
-            HomeHeader()
-            HeroSection()
-            MenuBreakdown(menuItems = sampleMenuItems)
-        }
+        val sampleUiState = MenuUiState(menuItems = sampleMenuItems)
+
+        MenuContent(
+            uiState = sampleUiState,
+            searchQuery = "",
+            onSearchQueryChange = {},
+            onCategoryClick = {},
+            onProfileClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Menu Content Loading")
+@Composable
+fun MenuContentLoadingPreview() {
+    LittleLemonTheme {
+        MenuContent(
+            uiState = MenuUiState(isLoading = true),
+            searchQuery = "",
+            onSearchQueryChange = {},
+            onCategoryClick = {},
+            onProfileClick = {}
+        )
     }
 }

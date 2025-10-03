@@ -6,16 +6,26 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import com.example.littlelemon.data.UserDataRepository
 import com.example.littlelemon.navigation.AppNavigation
+import com.example.littlelemon.navigation.Routes
 import com.example.littlelemon.ui.theme.LittleLemonTheme
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
+
+    private val userDataRepository: UserDataRepository by inject()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             LittleLemonTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    AppNavigation()
+                    val startDestination = if (userDataRepository.isUserRegistered()) {
+                        Routes.Menu
+                    } else {
+                        Routes.Onboarding
+                    }
+                    AppNavigation(startDestination = startDestination)
                 }
             }
         }
