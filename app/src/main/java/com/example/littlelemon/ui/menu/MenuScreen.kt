@@ -58,7 +58,7 @@ fun MenuScreen(
 
     val filteredItems = if (searchQuery.isNotBlank()) {
         uiState.menuItems.filter {
-            it.title.contains(searchQuery, ignoreCase = true)
+            it.name.contains(searchQuery, ignoreCase = true)
         }
     } else {
         uiState.menuItems
@@ -125,7 +125,7 @@ fun HomeHeader(onProfileClick: () -> Unit) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_profile),
+                painter = painterResource(id = R.drawable.ic_launcher_background/*id = R.drawable.ic_profile*/),
                 contentDescription = "Profile Icon",
                 modifier = Modifier.size(24.dp)
             )
@@ -211,8 +211,8 @@ fun CategoryButton(text: String, onClick: () -> Unit) {
 fun MenuContentPreview() {
     LittleLemonTheme {
         val sampleMenuItems = listOf(
-            MenuItem(1, "Greek Salad", "The famous Greek salad of crispy lettuce, peppers, olives and our Chicago style feta cheese, garnished with crunchy garlic and rosemary croutons.", 12.99, "", "starters"),
-            MenuItem(2, "Bruschetta", "Our Bruschetta is made from grilled bread that has been smeared with garlic and seasoned with salt and olive oil.", 5.99, "", "starters")
+            MenuItem("Greek Salad", "The famous Greek salad of crispy lettuce, peppers, olives and our Chicago style feta cheese, garnished with crunchy garlic and rosemary croutons.", 12.99, R.drawable.ic_launcher_background),
+            MenuItem("Bruschetta", "Our Bruschetta is made from grilled bread that has been smeared with garlic and seasoned with salt and olive oil.", 5.99, R.drawable.ic_launcher_background)
         )
         val sampleUiState = MenuUiState(menuItems = sampleMenuItems)
 
