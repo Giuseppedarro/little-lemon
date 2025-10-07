@@ -54,25 +54,27 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.compose.ui:ui-text-google-fonts:1.6.0")
 
-    // Koin
+    //Koin
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-    // Ktor
+    //Ktor
     implementation(libs.ktor.client.android)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
 
-    // Room
+    //Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-    // Glide
+    //Glide
     implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
 
 
     testImplementation(libs.junit)
+    testImplementation("io.mockk:mockk:1.13.11")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
