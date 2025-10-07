@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.littlelemon.data.UserDataRepository
+import com.example.littlelemon.domain.repository.UserDataRepository
 import com.example.littlelemon.navigation.AppNavigation
 import com.example.littlelemon.navigation.Routes
 import com.example.littlelemon.ui.theme.LittleLemonTheme
@@ -21,9 +21,9 @@ class MainActivity : ComponentActivity() {
             LittleLemonTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     val startDestination = if (userDataRepository.isUserRegistered()) {
-                        Routes.Menu
+                        Routes.MENU
                     } else {
-                        Routes.Onboarding
+                        Routes.ONBOARDING
                     }
                     AppNavigation(startDestination = startDestination)
                 }

@@ -95,9 +95,9 @@ fun ProfileContentPreview() {
     LittleLemonTheme {
         ProfileContent(
             uiState = ProfileUiState(
-                firstName = "Tilly",
-                lastName = "Doe",
-                email = "tilly.doe@example.com"
+                firstName = "Giuseppe",
+                lastName = "D'Arrò",
+                email = "email@example.com"
             ),
             onLogoutClick = {}
         )

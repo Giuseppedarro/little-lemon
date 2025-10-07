@@ -1,14 +1,8 @@
-package com.example.littlelemon.data
+package com.example.littlelemon.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-
-interface UserDataRepository {
-    fun saveUser(firstName: String, lastName: String, email: String)
-    fun isUserRegistered(): Boolean
-    fun getUserData(): Triple<String, String, String>
-    fun clearUserData()
-}
+import com.example.littlelemon.domain.repository.UserDataRepository
 
 class UserDataRepositoryImpl(context: Context) : UserDataRepository {
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)

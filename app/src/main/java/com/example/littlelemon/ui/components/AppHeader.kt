@@ -33,7 +33,7 @@ fun AppHeader() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(id = R.drawable.lemonlogo),
+            painter = painterResource(id = R.drawable.logo),
             contentDescription = "Little Lemon Logo",
             modifier = Modifier.height(60.dp)
         )
